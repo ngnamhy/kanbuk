@@ -24,12 +24,13 @@ pub enum Commands {
 
     Db {
         #[command(subcommand)]
-        action: CardCommand,
+        action: DbCommand,
     },
 }
 
+#[derive(Subcommand)]
 pub enum DbCommand {
-    Reset,
+    Init,
 }
 
 #[derive(Subcommand)]
@@ -57,7 +58,7 @@ pub enum CardCommand {
         id: i32,
     },
 
-    Move {
+    Mv {
         id: i32,
         target_deck_title: String,
     },

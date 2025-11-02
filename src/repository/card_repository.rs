@@ -97,6 +97,7 @@ impl CardRepository {
                 position,
                 done,
                 created_at
+            FROM cards
             WHERE id = ?1
             ",
             params![id],
@@ -117,9 +118,9 @@ impl CardRepository {
     }
 
     pub fn move_to_deck(conn: &Connection, id: i32, new_deck_title: &String) -> Result<()> {
-        let card = CardRepository::get_by_id(conn, id)?;
-        let new_deck = DeckRepository::get_by_title(conn, new_deck_title)?;
-        let current_deck = DeckRepository::get_by_id(conn, card.deck_id)?;
+        let card = CardRepository::get_by_id(conn, id).unwrap();
+        let new_deck = DeckRepository::get_by_title(conn, new_deck_title).unwrap();
+        let current_deck = DeckRepository::get_by_id(conn, card.deck_id).unwrap();
         DeckRepository::add_card(conn, new_deck_title)?;
         DeckRepository::rm_card(conn, &current_deck.title)?;
         conn.execute(

@@ -42,7 +42,7 @@ impl CardController {
                     }
                 };
             }
-            CardCommand::Move {
+            CardCommand::Mv {
                 id,
                 target_deck_title,
             } => {

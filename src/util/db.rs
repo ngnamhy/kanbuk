@@ -8,7 +8,7 @@ pub fn init_db() -> Result<Connection> {
     let db_dir = home.join(".kanbuk");
     let db_path = db_dir.join("kanbuk.db");
 
-    fs::create_dir_all(&db_dir).expect("Không thể tạo thư mục ~/.kanbuk");
+    fs::create_dir_all(&db_dir).expect("cannot create directory ~/.kanbuk");
 
     let conn = Connection::open(db_path)?;
     conn.execute("PRAGMA foreign_keys = ON", [])?;
