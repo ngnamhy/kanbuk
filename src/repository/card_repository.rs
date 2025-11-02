@@ -1,4 +1,6 @@
-use crate::model::card::Card;
+use std::result;
+
+use crate::{model::card::Card, repository::deck_repository::DeckRepository};
 use chrono::Local;
 use log::debug;
 use rusqlite::{Connection, Result, params};
@@ -32,7 +34,7 @@ impl CardRepository {
 
     pub fn all(conn: &Connection) -> Result<Vec<Card>> {
         let mut stmt = conn.prepare(
-            "SELECT id, title, description, deck_id, position, done, created_at
+            "SELECT id, title, description, deck_id, deck_title, position, done, created_at
             FROM cards",
         )?;
         let rows = stmt
@@ -42,9 +44,10 @@ impl CardRepository {
                     title: row.get(1)?,
                     description: row.get(2)?,
                     deck_id: row.get(3)?,
-                    position: row.get(4)?,
-                    done: row.get::<_, i32>(5)? == 1,
-                    created_at: row.get(6)?,
+                    deck_title: row.get(4)?,
+                    position: row.get(5)?,
+                    done: row.get::<_, i32>(6)? == 1,
+                    created_at: row.get(7)?,
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -53,7 +56,7 @@ impl CardRepository {
 
     pub fn all_by_deck_title(conn: &Connection, deck_title: String) -> Result<Vec<Card>> {
         let mut stmt = conn.prepare(
-            "SELECT id, title, description, deck_id, position, done, created_at
+            "SELECT id, title, description, deck_id, deck_title, position, done, created_at
              FROM cards WHERE deck_title = ?1 ORDER BY position ASC",
         )?;
         let rows = stmt
@@ -63,9 +66,10 @@ impl CardRepository {
                     title: row.get(1)?,
                     description: row.get(2)?,
                     deck_id: row.get(3)?,
-                    position: row.get(4)?,
-                    done: row.get::<_, i32>(5)? == 1,
-                    created_at: row.get(6)?,
+                    deck_title: row.get(4)?,
+                    position: row.get(5)?,
+                    done: row.get::<_, i32>(6)? == 1,
+                    created_at: row.get(7)?,
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -73,14 +77,54 @@ impl CardRepository {
     }
 
     pub fn mark_done(conn: &Connection, id: i32) -> Result<()> {
-        conn.execute("UPDATE cards SET done = 1 WHERE id = ?1", params![id])?;
-        Ok(())
+        let num_row_affected =
+            conn.execute("UPDATE cards SET done = 1 WHERE id = ?1", params![id])?;
+        if num_row_affected == 0 {
+            Err(rusqlite::Error::QueryReturnedNoRows)
+        } else {
+            Ok(())
+        }
     }
 
-    pub fn move_to_deck(conn: &Connection, id: i32, new_deck_id: i32) -> Result<()> {
+    pub fn get_by_id(conn: &Connection, id: i32) -> Result<(Card)> {
+        let card = conn.query_row(
+            "SELECT
+                id,
+                title,
+                description,
+                deck_id,
+                deck_title,
+                position,
+                done,
+                created_at
+            WHERE id = ?1
+            ",
+            params![id],
+            |row| {
+                Ok(Card {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    description: row.get(2)?,
+                    deck_id: row.get(3)?,
+                    deck_title: row.get(4)?,
+                    position: row.get(5)?,
+                    done: row.get(6)?,
+                    created_at: row.get(7)?,
+                })
+            },
+        );
+        card
+    }
+
+    pub fn move_to_deck(conn: &Connection, id: i32, new_deck_title: &String) -> Result<()> {
+        let card = CardRepository::get_by_id(conn, id)?;
+        let new_deck = DeckRepository::get_by_title(conn, new_deck_title)?;
+        let current_deck = DeckRepository::get_by_id(conn, card.deck_id)?;
+        DeckRepository::add_card(conn, new_deck_title)?;
+        DeckRepository::rm_card(conn, &current_deck.title)?;
         conn.execute(
-            "UPDATE cards SET deck_id = ?1 WHERE id = ?2",
-            params![new_deck_id, id],
+            "UPDATE cards SET deck_id = ?1, deck_title = ?2 WHERE id = ?3",
+            params![new_deck.id, new_deck.title, id],
         )?;
         Ok(())
     }

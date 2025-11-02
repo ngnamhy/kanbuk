@@ -1,5 +1,7 @@
 use crate::{
-    cli::CardCommand, model::card::Card, repository::card_repository::CardRepository,
+    controller::cli::CardCommand,
+    model::card::Card,
+    repository::{card_repository::CardRepository, deck_repository::DeckRepository},
     view::card_view::CardView,
 };
 use log::debug;
@@ -17,6 +19,7 @@ impl CardController {
             } => {
                 CardRepository::create(conn, deck_title, card_title, description.as_deref())
                     .unwrap();
+                DeckRepository::add_card(conn, deck_title).unwrap();
                 CardView::render_created(card_title, deck_title);
             }
             CardCommand::Ls { title } => {
@@ -30,12 +33,21 @@ impl CardController {
                 CardView::render_all(&cards);
             }
             CardCommand::Done { id } => {
-                CardRepository::mark_done(conn, *id).unwrap();
-                CardView::render_done(*id);
+                let i = match CardRepository::mark_done(conn, *id) {
+                    Ok(i) => {
+                        CardView::render_done(*id);
+                    }
+                    Err(e) => {
+                        CardView::render_error("card not found");
+                    }
+                };
             }
-            CardCommand::Move { id, target_deck_id } => {
-                CardRepository::move_to_deck(conn, *id, *target_deck_id).unwrap();
-                CardView::render_moved(*id, *target_deck_id);
+            CardCommand::Move {
+                id,
+                target_deck_title,
+            } => {
+                CardRepository::move_to_deck(conn, *id, target_deck_title).unwrap();
+                CardView::render_moved(*id, target_deck_title);
             }
             CardCommand::Rm { id } => {
                 CardRepository::delete(conn, *id).unwrap();

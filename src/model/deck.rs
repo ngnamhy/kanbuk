@@ -4,4 +4,5 @@ pub struct Deck {
     pub title: String,
     pub position: i32,
     pub created_at: String,
+    pub num_card: i32,
 }

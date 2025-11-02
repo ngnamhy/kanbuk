@@ -6,7 +6,12 @@ pub struct DeckView;
 impl DeckView {
     pub fn render_all(decks: &[Deck]) {
         for deck in decks {
-            println!("[{}] {}", deck.id.to_string().yellow(), deck.title.cyan());
+            println!(
+                "[{}] {} ({} cards)",
+                deck.id.to_string().yellow(),
+                deck.title.cyan(),
+                deck.num_card.to_string(),
+            );
         }
         println!();
     }
