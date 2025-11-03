@@ -7,9 +7,9 @@
     - [ ] ls card
     - [ ] mv card
   - [x] deck
-    - [ ] ls deck
+    - [x] ls deck
   - [x] db
-    - [ ] init
+    - [x] init
     - [ ] change db?
 
 - [ ] kanbukg, kanbuk with gui
