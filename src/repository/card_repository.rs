@@ -54,10 +54,12 @@ impl CardRepository {
         Ok(rows)
     }
 
-    pub fn all_by_deck_title(conn: &Connection, deck_title: String) -> Result<Vec<Card>> {
+    pub fn all_by_deck_title(conn: &Connection, deck_title: &String) -> Result<Vec<Card>> {
         let mut stmt = conn.prepare(
-            "SELECT id, title, description, deck_id, deck_title, position, done, created_at
-             FROM cards WHERE deck_title = ?1 ORDER BY position ASC",
+            "
+            SELECT id, title, description, deck_id, deck_title, position, done, created_at
+            FROM cards WHERE deck_title = ?1 ORDER BY position ASC
+             ",
         )?;
         let rows = stmt
             .query_map(params![deck_title], |row| {
@@ -73,6 +75,7 @@ impl CardRepository {
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
+        dbg!(&rows);
         Ok(rows)
     }
 

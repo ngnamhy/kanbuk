@@ -45,8 +45,8 @@ pub enum DeckCommand {
 #[derive(Subcommand)]
 pub enum CardCommand {
     Add {
-        deck_title: String,
         card_title: String,
+        deck_title: String,
         description: Option<String>,
     },
 

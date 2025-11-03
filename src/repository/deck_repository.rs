@@ -44,6 +44,7 @@ impl DeckRepository {
                 })
             },
         );
+        dbg!(&deck);
         deck
     }
 
@@ -65,7 +66,7 @@ impl DeckRepository {
         Ok(rows)
     }
 
-    pub fn update_num_card(conn: &Connection, num_card: i32, id: i32) -> Result<()> {
+    pub fn update_num_card(conn: &Connection, id: i32, num_card: i32) -> Result<()> {
         conn.execute(
             "UPDATE decks SET num_card = ?1 WHERE id = ?2",
             params![num_card, id],

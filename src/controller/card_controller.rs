@@ -26,7 +26,7 @@ impl CardController {
                 let mut cards: Vec<Card> = Vec::new();
                 if let Some(title) = title {
                     debug!("{}", &title);
-                    cards = CardRepository::all_by_deck_title(conn, title.clone()).unwrap();
+                    cards = CardRepository::all_by_deck_title(conn, &title).unwrap();
                 } else {
                     cards = CardRepository::all(conn).unwrap();
                 }
