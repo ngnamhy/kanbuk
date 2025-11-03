@@ -4,6 +4,7 @@ pub struct Card {
     pub title: String,
     pub description: Option<String>,
     pub deck_id: i32,
+    pub deck_title: String,
     pub position: i32,
     pub done: bool,
     pub created_at: String,

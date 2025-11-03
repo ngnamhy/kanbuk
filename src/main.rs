@@ -1,4 +1,3 @@
-mod cli;
 mod controller;
 mod model;
 mod repository;
@@ -6,8 +5,10 @@ mod util;
 mod view;
 
 use clap::Parser;
-use cli::{Cli, Commands};
-use controller::{card_controller::CardController, deck_controller::DeckController};
+use controller::cli::{Cli, Commands};
+use controller::{
+    card_controller::CardController, db_controller::DbController, deck_controller::DeckController,
+};
 use util::db::init_db;
 
 fn main() {
@@ -18,5 +19,6 @@ fn main() {
     match &cli.command {
         Commands::Deck { action } => DeckController::handle(&conn, action),
         Commands::Card { action } => CardController::handle(&conn, action),
+        Commands::Db { action } => DbController::handle(&conn, action),
     }
 }

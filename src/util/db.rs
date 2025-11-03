@@ -8,7 +8,7 @@ pub fn init_db() -> Result<Connection> {
     let db_dir = home.join(".kanbuk");
     let db_path = db_dir.join("kanbuk.db");
 
-    fs::create_dir_all(&db_dir).expect("Không thể tạo thư mục ~/.kanbuk");
+    fs::create_dir_all(&db_dir).expect("cannot create directory ~/.kanbuk");
 
     let conn = Connection::open(db_path)?;
     conn.execute("PRAGMA foreign_keys = ON", [])?;
@@ -18,6 +18,7 @@ pub fn init_db() -> Result<Connection> {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL UNIQUE,
             position INTEGER DEFAULT 0,
+            num_card INTEGER DEFAULT 0,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )",
         [],
@@ -51,14 +52,14 @@ pub fn init_db() -> Result<Connection> {
     )?;
     conn.execute(
         "INSERT INTO decks (title, position)
-         SELECT 'pending', 2
-         WHERE NOT EXISTS (SELECT 1 FROM decks WHERE title='pending')",
+         SELECT 'todo', 2
+         WHERE NOT EXISTS (SELECT 1 FROM decks WHERE title='todo')",
         [],
     )?;
     conn.execute(
         "INSERT INTO decks (title, position)
-         SELECT 'in progress', 3
-         WHERE NOT EXISTS (SELECT 1 FROM decks WHERE title='in progress')",
+         SELECT 'doing', 3
+         WHERE NOT EXISTS (SELECT 1 FROM decks WHERE title='doing')",
         [],
     )?;
     conn.execute(

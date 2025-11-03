@@ -21,24 +21,32 @@ pub enum Commands {
         #[command(subcommand)]
         action: CardCommand,
     },
+
+    Db {
+        #[command(subcommand)]
+        action: DbCommand,
+    },
+}
+
+#[derive(Subcommand)]
+pub enum DbCommand {
+    Init,
 }
 
 #[derive(Subcommand)]
 pub enum DeckCommand {
-    Add { title: String },
-
+    // Add { title: String },
     Ls,
+    // Rm { id: i32 },
 
-    Rm { id: i32 },
-
-    Rename { id: i32, new_title: String },
+    // Rename { id: i32, new_title: String },
 }
 
 #[derive(Subcommand)]
 pub enum CardCommand {
     Add {
-        deck_title: String,
         card_title: String,
+        deck_title: String,
         description: Option<String>,
     },
 
@@ -50,9 +58,9 @@ pub enum CardCommand {
         id: i32,
     },
 
-    Move {
+    Mv {
         id: i32,
-        target_deck_id: i32,
+        target_deck_title: String,
     },
 
     /// Xóa card
